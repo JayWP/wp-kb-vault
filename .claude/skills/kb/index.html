@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/kb — LLM 知识库管理工具</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-bg: #1f6feb1a;
+      --success: #3fb950;
+      --warning: #d29922;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h1::before {
+      content: '📚';
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--accent);
+    }
+
+    code {
+      background: var(--surface);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'SF Mono', Consolas, monospace;
+      font-size: 0.9em;
+      color: var(--success);
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+    }
+
+    .command {
+      background: linear-gradient(135deg, var(--accent-bg), transparent);
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      margin: 0.5rem 0;
+      border-radius: 0 8px 8px 0;
+      font-family: 'SF Mono', Consolas, monospace;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: var(--surface);
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .flow-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+
+    .flow-arrow {
+      color: var(--text-muted);
+    }
+
+    .tag {
+      display: inline-block;
+      background: var(--accent-bg);
+      color: var(--accent);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.85em;
+      margin-right: 0.5rem;
+    }
+
+    .dir-tree {
+      font-family: 'SF Mono', Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    .dir-comment {
+      color: var(--text-muted);
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>/kb — LLM 知识库管理工具</h1>
+    <p class="subtitle">基于 Karpathy 的 LLM Knowledge Base 模式：raw/ 存原始资料，LLM 编译成 wiki/，索引替代 RAG。</p>
+
+    <h2>🚀 快速开始</h2>
+
+    <h3>1. 初始化知识库</h3>
+    <div class="command">/kb init</div>
+    <p style="margin-top: 0.5rem;">在当前目录创建知识库目录结构：</p>
+
+    <div class="dir-tree">
+      <pre>
+├── raw/                    <span class="dir-comment"># 原始资料（只读）</span>
+├── wiki/
+│   ├── concepts/          <span class="dir-comment"># 核心概念</span>
+│   ├── sources/           <span class="dir-comment"># 来源摘要</span>
+│   └── comparisons/       <span class="dir-comment"># 对比分析</span>
+├── output/
+│   ├── analysis/          <span class="dir-comment"># 分析报告</span>
+│   └── slides/           <span class="dir-comment"># 幻灯片</span>
+└── index/                <span class="dir-comment"># 索引文件</span>
+      </pre>
+    </div>
+
+    <h3>2. 导入文件</h3>
+    <p>将 PDF、Excel、图片、Word 文档放入 <code>raw/</code> 目录，然后：</p>
+    <div class="command">/kb ingest</div>
+    <p style="margin-top: 0.5rem;">自动提取文本并登记到索引。</p>
+
+    <h3>3. 编译为 Wiki</h3>
+    <div class="command">/kb compile</div>
+    <p style="margin-top: 0.5rem;">LLM 读取原料，生成结构化 wiki 文章。</p>
+
+    <h3>4. 查询知识库</h3>
+    <div class="command">/kb query "你的问题"</div>
+    <p style="margin-top: 0.5rem;">生成结构化报告，包含分析、结论和回填建议。</p>
+
+    <h3>5. 回填有价值的结果</h3>
+    <div class="command">/kb file</div>
+    <p style="margin-top: 0.5rem;">将查询报告中有价值的内容并入 wiki。</p>
+
+    <h3>6. 健康检查</h3>
+    <div class="command">/kb lint</div>
+    <p style="margin-top: 0.5rem;">六项检查：断链、孤岛、溯源、一致性、覆盖度、空白发现。</p>
+
+    <h3>7. 查看状态</h3>
+    <div class="command">/kb status</div>
+    <p style="margin-top: 0.5rem;">仪表盘展示整体健康度和统计信息。</p>
+
+    <h2>📋 子命令速查</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>命令</th>
+          <th>功能</th>
+          <th>触发词</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>kb init [目录]</code></td>
+          <td>初始化知识库</td>
+          <td>初始化、创建知识库</td>
+        </tr>
+        <tr>
+          <td><code>kb ingest</code></td>
+          <td>预处理 raw/ 文件</td>
+          <td>导入、处理新文件</td>
+        </tr>
+        <tr>
+          <td><code>kb compile [文件]</code></td>
+          <td>编译为 wiki</td>
+          <td>编译、更新 wiki</td>
+        </tr>
+        <tr>
+          <td><code>kb query "&lt;问题&gt;"</code></td>
+          <td>查询知识库</td>
+          <td>查知识库、问知识库</td>
+        </tr>
+        <tr>
+          <td><code>kb file [报告]</code></td>
+          <td>回填到 wiki</td>
+          <td>回填、归档</td>
+        </tr>
+        <tr>
+          <td><code>kb lint</code></td>
+          <td>健康检查</td>
+          <td>检查、lint</td>
+        </tr>
+        <tr>
+          <td><code>kb status</code></td>
+          <td>状态仪表盘</td>
+          <td>状态、看看知识库</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>📦 支持的文件格式</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>格式</th>
+          <th>后缀</th>
+          <th>说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>PDF</td>
+          <td>.pdf</td>
+          <td>提取文本和图片</td>
+        </tr>
+        <tr>
+          <td>Excel</td>
+          <td>.xlsx, .xls, .csv</td>
+          <td>提取表格内容</td>
+        </tr>
+        <tr>
+          <td>图片</td>
+          <td>.png, .jpg, .jpeg</td>
+          <td>OCR 文字识别</td>
+        </tr>
+        <tr>
+          <td>Word</td>
+          <td>.docx</td>
+          <td>提取段落和表格</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>🔄 工作流程</h2>
+
+    <div class="flow">
+      <div class="flow-step">投喂原料<br><small>raw/</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">LLM 编译<br><small>wiki/</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">查询使用<br><small>/kb query</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">知识增长<br><small>/kb file</small></div>
+    </div>
+
+    <h2>📁 完整目录结构</h2>
+
+    <pre class="dir-tree">
+{知识库根目录}/
+├── raw/                    <span class="dir-comment"># 原始资料（只读）</span>
+│   └── .extracted/        <span class="dir-comment"># 提取的文本（自动生成）</span>
+├── wiki/
+│   ├── concepts/          <span class="dir-comment"># 核心概念</span>
+│   ├── sources/           <span class="dir-comment"># 来源摘要</span>
+│   └── comparisons/       <span class="dir-comment"># 对比分析</span>
+├── output/
+│   ├── analysis/          <span class="dir-comment"># 查询报告</span>
+│   └── slides/           <span class="dir-comment"># 幻灯片</span>
+├── index/
+│   ├── MASTER-INDEX.md   <span class="dir-comment"># 全局索引</span>
+│   ├── TOPIC-MAP.md      <span class="dir-comment"># 主题分组</span>
+│   ├── RAW-REGISTRY.md   <span class="dir-comment"># 原始文件登记</span>
+│   ├── LINT-REPORT.md    <span class="dir-comment"># 健康检查报告</span>
+│   └── ONTOLOGY.md       <span class="dir-comment"># 本体定义</span>
+└── scripts/
+    ├── ingest.py          <span class="dir-comment"># 预处理脚本</span>
+    └── extractors/        <span class="dir-comment"># 文件提取器</span>
+    </pre>
+
+    <h2>🐍 Python 依赖</h2>
+
+    <p>首次使用需要安装依赖：</p>
+    <div class="command">pip install -r .claude/skills/kb/scripts/requirements.txt</div>
+
+    <div class="card">
+      <strong>依赖列表：</strong>
+      <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+        <li>PyMuPDF — PDF 提取</li>
+        <li>openpyxl — Excel 读取</li>
+        <li>pandas — 数据处理</li>
+        <li>pytesseract — 图片 OCR</li>
+        <li>python-docx — Word 读取</li>
+        <li>Pillow — 图片处理</li>
+      </ul>
+    </div>
+
+    <h2>⚙️ SessionStart Hook（可选）</h2>
+
+    <p>配置后，每次打开 Claude Code 会自动检测 <code>raw/</code> 中的新文件并提醒处理。</p>
+    <p style="margin-top: 0.5rem;">初始化时选择"是"即可启用。</p>
+
+    <footer>
+      <p>/kb — 整合自 <a href="https://github.com/ChuYinan2023/kb-skills" style="color: var(--accent);">kb-skills</a></p>
+    </footer>
+  </div>
+</body>
+</html>
